@@ -134,7 +134,7 @@ def test_empty_diff():
 
     mapping = {}
 
-    diff.extend(get_diff(obj_a, obj_b, [], mapping))
+    diff.extend(get_diff(obj_a, obj_b, [], mapping, p_details=True))
 
     expected_diff = []
 
@@ -274,8 +274,8 @@ def test_simplevalue_diff():
         'root.blocs_reponses.activites_affichage_immediat': 'identifiant'
     }
 
-    diff.extend(get_diff(obj_a, obj_b, ["root"], mapping))
+    diff.extend(get_diff(obj_a, obj_b, "root", mapping, p_details=True))
 
-    expected_diff = [{'kind': 'E', 'lhs': 1, 'path': ['root', 'blocs_reponses', '[0]', 'activites_affichage_immediat', '[0]', 'ordre'], 'rhs': 2}]
+    expected_diff = [{'kind': 'E', 'lhs': 1, 'path_to_object': 'root.blocs_reponses.[0].activites_affichage_immediat.[0].ordre',  'filter': 'root.blocs_reponses.activites_affichage_immediat.ordre', 'rhs': 2}]
 
     assert diff == expected_diff
