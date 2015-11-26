@@ -20,7 +20,7 @@ import re
 logger = logging.getLogger("pydiff")
 
 
-def get_diff(p_lhs, p_rhs, p_path="", p_mapping={}, p_ignored_fields=[], p_details=False):
+def get_diff(p_lhs, p_rhs, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Compute difference between two objects
 
@@ -29,7 +29,9 @@ def get_diff(p_lhs, p_rhs, p_path="", p_mapping={}, p_ignored_fields=[], p_detai
         p_path              Path associated to the difference (useful for nested objects comparison)
         p_mapping           A mapping dict that associates a json path to a field containing the object id
         p_ignored_fields    List of path that will not be compared
-        p_details           If false, retrieves only the diff type, not the values
+        p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
+                            It will give the value for each version (old or new) of a field that is of simple type (int, string)
+        p_complex_details   If true, retrieves the values of "complex types differences" (list, dict)
     """
     current_diffs = []  # Computed diffs
 
@@ -41,27 +43,27 @@ def get_diff(p_lhs, p_rhs, p_path="", p_mapping={}, p_ignored_fields=[], p_detai
     if not isinstance(p_lhs, type(p_rhs)):
         # If the type are different, it corresponds to a creation and a deletion
         diff = {'path_to_object': p_path, 'kind': 'D', 'filter': no_idx_path}
-        if p_details:
+        if p_complex_details:
             diff['lhs'] = p_lhs
         current_diffs.append(diff)
         diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path}
-        if p_details:
+        if p_complex_details:
             diff['rhs'] = p_rhs
         current_diffs.append(diff)
     elif isinstance(p_lhs, dict):
         # Dictionary data
-        current_diffs.extend(_get_dictionary_diff(p_lhs, p_rhs, p_path, p_mapping, p_ignored_fields, p_details))
+        current_diffs.extend(_get_dictionary_diff(p_lhs, p_rhs, p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details))
     elif isinstance(p_lhs, list):
         # List data
-        current_diffs.extend(_get_list_diff(p_lhs, p_rhs, p_path, p_mapping, p_ignored_fields, p_details))
+        current_diffs.extend(_get_list_diff(p_lhs, p_rhs, p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details))
     else:
         # Simple data
-        current_diffs.extend(_get_simpletype_diff(p_lhs, p_rhs, p_path, p_details))
+        current_diffs.extend(_get_simpletype_diff(p_lhs, p_rhs, p_path, p_simple_details))
 
     return current_diffs
 
 
-def _get_simpletype_diff(p_lst, p_rst, p_path="", p_details=False):
+def _get_simpletype_diff(p_lst, p_rst, p_path="", p_details=True):
     """
         Generate a "E" diff if p_lst and p_rst are not equals
 
@@ -85,7 +87,7 @@ def _get_simpletype_diff(p_lst, p_rst, p_path="", p_details=False):
     return current_diffs
 
 
-def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fields=[], p_details=False):
+def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Generate diff between two dictionaries.
         Creates "N" type diff for each key present only on the right side
@@ -97,7 +99,9 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fiel
         p_path              Path associated to the difference (useful for nested objects comparison)
         p_mapping           A mapping dict that associates a json path to a field containing the object id
         p_ignored_fields    List of path that will not be compared
-        p_details           If false, retrieves only the diff type, not the values
+        p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
+                            It will give the value for each version (old or new) of a field that is of simple type (int, string)
+        p_complex_details   If true, retrieves the values of "complex types differences" (list, dict)
 
         return   A list of differences
     """
@@ -115,7 +119,7 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fiel
         current_path = _add_field_to_path(p_path, key)
         no_idx_path = _get_path_without_indexes(current_path)
         diff = {'path_to_object': current_path, 'kind': 'N', 'filter': no_idx_path}
-        if p_details:
+        if p_complex_details:
             diff['rhs'] = p_ldic[key]
         current_diffs.append(diff)
 
@@ -125,7 +129,7 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fiel
         current_path = _add_field_to_path(p_path, key)
         no_idx_path = _get_path_without_indexes(current_path)
         diff = {'path_to_object': current_path, 'kind': 'D', 'filter': no_idx_path}
-        if p_details:
+        if p_complex_details:
             diff['lhs'] = p_rdic[key]
         current_diffs.append(diff)
 
@@ -133,12 +137,12 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fiel
     for key in intersect:
         # As the diff is on "key" field, we add it to the path
         current_path = _add_field_to_path(p_path, key)
-        current_diffs.extend(get_diff(p_ldic.get(key), p_rdic.get(key), current_path, p_mapping, p_ignored_fields, p_details))
+        current_diffs.extend(get_diff(p_ldic.get(key), p_rdic.get(key), current_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details))
 
     return current_diffs
 
 
-def _get_list_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_details=False):
+def _get_list_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Generate "A type" array diff
 
@@ -147,7 +151,9 @@ def _get_list_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[
         p_path              The path of p_llist and p_rlist if they "come" from a nested object
         p_mapping           A mapping dict that associates a json path to a fiel containing the object id
         p_ignored_fields    List of path that will not be compared
-        p_details           If false, retrieves only the diff type, not the values
+        p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
+                            It will give the value for each version (old or new) of a field that is of simple type (int, string)
+        p_complex_details   If true, retrieves the values of "complex types differences" (list, dict)
 
         return  A list of diff (type "A" as 'Array').
     """
@@ -160,11 +166,11 @@ def _get_list_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[
         item_type = _get_list_type(p_rlist)
 
     if item_type == "dict":
-        current_diffs = _get_list_dict_diff(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_details)
+        current_diffs = _get_list_dict_diff(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details)
     elif item_type == "list":
-        current_diffs = _get_list_diff_by_position(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_details)
+        current_diffs = _get_list_diff_by_position(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details)
     else:
-        current_diffs = _get_list_simple_diff(p_llist, p_rlist, p_path, p_details)
+        current_diffs = _get_list_simple_diff(p_llist, p_rlist, p_path, p_simple_details)
 
     return current_diffs
 
@@ -221,7 +227,7 @@ def _get_list_simple_diff(p_llist, p_rlist, p_path="", p_details=False):
     return current_diffs
 
 
-def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_details=False):
+def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Compute the diff between two lists containing dictionaries.
         Try to get a mapping from "p_mapping" to identify the fieldname that makes matchs possible
@@ -232,7 +238,9 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
         p_path              The path of p_llist and p_rlist if they "come" from a nested object
         p_mapping           A mapping dict that associates a json path to a field containing the object id
         p_ignored_fields    List of path that will not be compared
-        p_details           If false, retrieves only the diff type, not the values
+        p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
+                            It will give the value for each version (old or new) of a field that is of simple type (int, string)
+        p_complex_details   If true, retrieves the values of "complex types differences" (list, dict)
 
         return  A list of diff (type "A" as 'Array') + a list of true diff between subobject
     """
@@ -247,7 +255,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
     except KeyError as e:
         # Can't compare elements by id, compare by position only
         logger.debug("No id_fieldname matching the path %s. Using positional comparaison for this list ...", no_idx_path)
-        current_diffs = _get_list_diff_by_position(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_details)
+        current_diffs = _get_list_diff_by_position(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details)
     except Exception as e:
         logger.debug("error getting id_fieldname")
         logger.error(e)
@@ -275,7 +283,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
                     # Add a move diff if the item has moved
                     if left_index != right_index:
                         diff = {'path_to_object': p_path, 'kind': 'M', 'filter': no_idx_path}
-                        if p_details:
+                        if p_complex_details:
                             diff['lhs_idx'] = left_index
                             diff['rhs_idx'] = right_index
                         current_diffs.append(diff)
@@ -283,7 +291,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
                     # We keep a trace of the list idx in the path
                     # Append the index of the element to the path
                     new_path = _add_field_to_path(p_path, "[{0}]".format(str(left_index)))
-                    current_diffs.extend(get_diff(left_item, right_item, new_path, p_mapping, p_ignored_fields, p_details))
+                    current_diffs.extend(get_diff(left_item, right_item, new_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details))
 
                     # left_not_in_right and right_not_in_left store index
                     left_not_in_right.remove(left_index)
@@ -295,7 +303,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
         # Deleted items
         for i in left_not_in_right:
             diff = {'path_to_object': p_path, 'kind': 'D', 'filter': no_idx_path}
-            if p_details:
+            if p_complex_details:
                 diff['lhs_idx'] = i
                 diff['lhs'] = p_llist[i]
             current_diffs.append(diff)
@@ -303,7 +311,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
         # New items
         for i in right_not_in_left:
             diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path, 'rhs_idx': i, 'rhs': p_rlist[i]}
-            if p_details:
+            if p_complex_details:
                 diff['rhs_idx'] = i
                 diff['rhs'] = p_rlist[i]
             current_diffs.append(diff)
@@ -311,7 +319,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
     return current_diffs
 
 
-def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_details=False):
+def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Compare two lists by position only, no matter they would have a matching id
 
@@ -320,7 +328,9 @@ def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping={}, p_igno
         p_path              Path associated to the difference (useful for nested objects comparison)
         p_mapping           A mapping dict that associates a json path to a fiel containing the object id
         p_ignored_fields    List of path that will not be compared
-        p_details           If false, retrieves only the diff type, not the values
+        p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
+                            It will give the value for each version (old or new) of a field that is of simple type (int, string)
+        p_complex_details   If true, retrieves the values of "complex types differences" (list, dict)
 
         return   A list of differences
     """
@@ -332,13 +342,13 @@ def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping={}, p_igno
         # Record the deleted items (in llist but not in rlist)
         if (i >= len(p_rlist)):
             diff = {'path_to_object': p_path, 'kind': 'D', 'filter': no_idx_path}
-            if p_details:
+            if p_complex_details:
                 diff['lhs_idx'] = i
                 diff['lhs'] = p_llist[i]
             current_diffs.append(diff)
         else:
             # If index exists in both lists, compute the diff between the two items
-            diffs = get_diff(p_llist[i], p_rlist[i], p_path, p_mapping, p_ignored_fields, p_details)
+            diffs = get_diff(p_llist[i], p_rlist[i], p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details)
             current_diffs.extend(diffs)
 
     # If there are more items in the rlist, loop over it to get new items
@@ -346,7 +356,7 @@ def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping={}, p_igno
         # New items (in rlist but not in llist)
         for i in range(len(p_llist), len(p_rlist)):
             diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path}
-            if p_details:
+            if p_complex_details:
                 diff['rhs_idx'] = i
                 diff['rhs'] = p_rlist[i]
             current_diffs.append(diff)
