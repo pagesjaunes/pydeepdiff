@@ -7,7 +7,7 @@ from pydiff.diff import _get_list_dict_diff
 
 def test_empty_lists():
     diff = []
-    diff.extend(_get_list_dict_diff([{}], [{}], p_details=True))
+    diff.extend(_get_list_dict_diff([{}], [{}], p_complex_details=True))
 
     assert not diff
 
@@ -19,7 +19,7 @@ def test_no_mapping_lists():
     list_a = [{'field_1': 'id1', 'field_2': 'vala1'}, {'field_1': 'id2', 'field_2': 'vala2'}]
     list_b = [{'field_1': 'id3', 'field_2': 'valb1'}, {'field_1': 'id1', 'field_2': 'valb2'}]
 
-    diff.extend(_get_list_dict_diff(list_a, list_b, p_details=True))
+    diff.extend(_get_list_dict_diff(list_a, list_b, p_complex_details=True))
 
     expected_diff = [
                      {'rhs': 'id3', 'lhs': 'id1', 'kind': 'E', 'path_to_object': 'field_1', 'filter': 'field_1'},
@@ -39,7 +39,7 @@ def test_mapping_lists():
 
     mapping = {'root': 'field_1'}
 
-    diff.extend(_get_list_dict_diff(list_a, list_b, 'root', mapping, p_details=True))
+    diff.extend(_get_list_dict_diff(list_a, list_b, 'root', mapping, p_complex_details=True))
 
     expected_diff = [
                         {'path_to_object': 'root', 'filter': 'root', 'rhs_idx': 1, 'lhs_idx': 0, 'kind': 'M'},

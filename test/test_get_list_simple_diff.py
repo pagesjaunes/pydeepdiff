@@ -8,7 +8,7 @@ from pydiff.diff import _get_list_simple_diff
 def test_empty_lists():
     """ Two empty lists returns an empty diff """
     diff = []
-    diff.extend(_get_list_simple_diff([], [], p_details=True))
+    diff.extend(_get_list_simple_diff([], []))
 
     assert not diff
 
@@ -38,7 +38,7 @@ def test_int_equal_lists():
     list_a = [1, 2, 3, 4]
     list_b = [3, 2, 1, 4]
 
-    diff.extend(_get_list_simple_diff(list_a, list_b, p_details=True))
+    diff.extend(_get_list_simple_diff(list_a, list_b))
 
     assert not diff
 
