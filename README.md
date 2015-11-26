@@ -3,20 +3,20 @@ pydiff
 
 # Description
 
-    This package allows to compute deep differences between two python dictionnaries
+This package allows to compute deep differences between two python dictionnaries
 
-    Differences are stored in the following format :
+Differences are stored in the following format :
 
-    lhs stands for Left Hand Side
-    rhs stands for Right Hand Side
+lhs stands for Left Hand Side
+rhs stands for Right Hand Side
 
-    - Creation : {'path':path_to_object,'kind':'N','rhs':value}
-    - Deletion : {'path':path_to_object,'kind':'D','lhs':value}
-    - Edition  : {'path':path_to_object,'kind':'E','lhs':value,'rhs':value}
-    - Lists
-        - Creation : {'path':path_to_object,'kind':'N','rhs_idx':index,'rhs':value}
-        - Deletion : {'path':path_to_object,'kind':'D','lhs_idx':index,'lhs':value}
-        - Move     : {'path':path_to_object,'kind':'M','lhs_idx':index,'rhs_idx':index}
+- Creation : {'path':path_to_object,'kind':'N','rhs':value}
+- Deletion : {'path':path_to_object,'kind':'D','lhs':value}
+- Edition  : {'path':path_to_object,'kind':'E','lhs':value,'rhs':value}
+- Lists
+    - Creation : {'path':path_to_object,'kind':'N','rhs_idx':index,'rhs':value}
+    - Deletion : {'path':path_to_object,'kind':'D','lhs_idx':index,'lhs':value}
+    - Move     : {'path':path_to_object,'kind':'M','lhs_idx':index,'rhs_idx':index}
 
 # Requirements
 This lib requires python 3.2+
@@ -120,7 +120,7 @@ The result is the following list of differences :
     ]
 ```
 
-# unit test
+# Tests
 
 To launch unit tests, just run this command from the project home directory (you will need py.test installed)
 
