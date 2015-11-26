@@ -21,6 +21,12 @@ rhs stands for Right Hand Side
 # Requirements
 This lib requires python 3.2+
 
+# Install
+
+```
+    pip install pydeepdiff
+```
+
 # Example of use
 
 ```python
