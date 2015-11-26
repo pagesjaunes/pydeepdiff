@@ -2,7 +2,7 @@
     Test of _get_simpletype_diff function
 """
 
-from pydiff.diff import _get_simpletype_diff
+from pydeepdiff.diff import _get_simpletype_diff
 
 
 def test_no_diff():

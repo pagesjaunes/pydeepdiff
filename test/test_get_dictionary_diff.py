@@ -2,7 +2,7 @@
     Test of _get_dictionary_diff function
 """
 
-from pydiff.diff import _get_dictionary_diff
+from pydeepdiff.diff import _get_dictionary_diff
 
 
 def test_empty_dict():

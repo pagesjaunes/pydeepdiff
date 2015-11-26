@@ -1,4 +1,4 @@
-pydiff
+pydeepdiff
 ========
 
 # Description
@@ -25,7 +25,7 @@ This lib requires python 3.2+
 
 ```python
 
-    from pydiff.diff import get_diff
+    from pydeepdiff.diff import get_diff
 
         dict_a = {'field_1': 'id1', 'field_2': 'vala1'}
         dict_b = {'field_1': 'id3', 'field_2': 'valb1'}
@@ -93,7 +93,7 @@ In this example the result is an empty list of differences.
 
 When comparing two list of dict, we have to "associate" each item of the left side list to an item of the right side list.
 For this, we have to know "HOW" making this association : often a dict will have a field that represents its id, and we want to use it.
-In pydiff, this case is resolved with a mapping file.
+In pydeepdiff, this case is resolved with a mapping file.
 
 In the following example, we explicitly use the 'field_1' to identify an object of the list.
 

@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 
-"""Setup script for pydiff distributions"""
+"""Setup script for pydeepdiff distributions"""
 
 from setuptools import setup, find_packages
-import pydiff
+import pydeepdiff
 
 
 def main():
     setup(
-        name='pydiff',
-        version=pydiff.__version__,
+        name='pydeepdiff',
+        version=pydeepdiff.__version__,
         description='Computes deep differences between objects',
+        long_description=open('README.md').read(),
         author='PagesJaunes',
         author_email='fdepaulis@pagesjaunes.fr',
-        url='https://github.com/pagesjaunes/pydiff',
+        url='https://github.com/pagesjaunes/pydeepdiff',
         packages=find_packages(),
         install_requires=[]
     )

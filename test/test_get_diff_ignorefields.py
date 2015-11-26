@@ -2,7 +2,7 @@
     Test of ignore fields
 """
 
-from pydiff.diff import get_diff
+from pydeepdiff.diff import get_diff
 
 
 def test_basic():

@@ -17,7 +17,7 @@
 import logging
 import re
 
-logger = logging.getLogger("pydiff")
+logger = logging.getLogger("pydeepdiff")
 
 
 def get_diff(p_lhs, p_rhs, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):

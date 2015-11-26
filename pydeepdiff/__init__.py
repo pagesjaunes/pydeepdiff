@@ -16,7 +16,7 @@
 
     Example of use :
 
-    from pydiff.diff import get_diff
+    from pydeepdiff.diff import get_diff
 
         dict_a = {'field_1': 'id1', 'field_2': 'vala1'}
         dict_b = {'field_1': 'id3', 'field_2': 'valb1'}

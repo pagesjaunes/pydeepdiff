@@ -2,7 +2,7 @@
     Test of _get_list_diff function
 """
 
-from pydiff.diff import _get_list_diff
+from pydeepdiff.diff import _get_list_diff
 
 
 def test_empty_lists():
