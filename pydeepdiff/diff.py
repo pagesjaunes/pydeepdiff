@@ -20,14 +20,14 @@ import re
 logger = logging.getLogger("pydeepdiff")
 
 
-def get_diff(p_lhs, p_rhs, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
+def get_diff(p_lhs, p_rhs, p_path="", p_mapping=[], p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Compute difference between two objects
 
         p_lhs               Left Hand Side of the comparison
         p_rhs               Right Hand Side of the comparison
         p_path              Path associated to the difference (useful for nested objects comparison)
-        p_mapping           A mapping dict that associates a json path to a field containing the object id
+        p_mapping           A mapping list of dict that associates a json path to a field containing the object id {'path':'path.to.object','id':'fieldname'}
         p_ignored_fields    List of path that will not be compared
         p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
                             It will give the value for each version (old or new) of a field that is of simple type (int, string)
@@ -87,7 +87,7 @@ def _get_simpletype_diff(p_lst, p_rst, p_path="", p_details=True):
     return current_diffs
 
 
-def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
+def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping=[], p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Generate diff between two dictionaries.
         Creates "N" type diff for each key present only on the right side
@@ -97,7 +97,7 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fiel
         p_ldic              Left Dictionary
         p_rdic              Right Dictionary
         p_path              Path associated to the difference (useful for nested objects comparison)
-        p_mapping           A mapping dict that associates a json path to a field containing the object id
+        p_mapping           A mapping list of dict that associates a json path to a field containing the object id {'path':'path.to.object','id':'fieldname'}
         p_ignored_fields    List of path that will not be compared
         p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
                             It will give the value for each version (old or new) of a field that is of simple type (int, string)
@@ -142,14 +142,14 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping={}, p_ignored_fiel
     return current_diffs
 
 
-def _get_list_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
+def _get_list_diff(p_llist, p_rlist, p_path="", p_mapping=[], p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Generate "A type" array diff
 
         p_llist             Left List
         p_rlist             Right List
         p_path              The path of p_llist and p_rlist if they "come" from a nested object
-        p_mapping           A mapping dict that associates a json path to a fiel containing the object id
+        p_mapping           A mapping list of dict that associates a json path to a fiel containing the object id {'path':'path.to.object','id':'fieldname'}
         p_ignored_fields    List of path that will not be compared
         p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
                             It will give the value for each version (old or new) of a field that is of simple type (int, string)
@@ -227,7 +227,7 @@ def _get_list_simple_diff(p_llist, p_rlist, p_path="", p_details=False):
     return current_diffs
 
 
-def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
+def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping=[], p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Compute the diff between two lists containing dictionaries.
         Try to get a mapping from "p_mapping" to identify the fieldname that makes matchs possible
@@ -236,7 +236,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
         p_llist             Left dict List
         p_rlist             Right ditc List
         p_path              The path of p_llist and p_rlist if they "come" from a nested object
-        p_mapping           A mapping dict that associates a json path to a field containing the object id
+        p_mapping           A mapping list of dict that associates a json path to a field containing the object id {'path':'path.to.object','id':'fieldname'}
         p_ignored_fields    List of path that will not be compared
         p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
                             It will give the value for each version (old or new) of a field that is of simple type (int, string)
@@ -251,7 +251,9 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
         # As the path stores indexes, we have to remove them to match the mapping format
         no_idx_path = _get_path_without_indexes(p_path)
         logger.debug("id_fieldname from %s", no_idx_path)
-        id_fieldname = p_mapping[no_idx_path]
+        # id_fieldname = p_mapping[no_idx_path]
+        id_fieldname = _get_id_from_mapping(p_mapping, no_idx_path)
+        logger.debug("id_fieldname : %s", id_fieldname)
     except KeyError as e:
         # Can't compare elements by id, compare by position only
         logger.debug("No id_fieldname matching the path %s. Using positional comparaison for this list ...", no_idx_path)
@@ -260,73 +262,81 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fie
         logger.debug("error getting id_fieldname")
         logger.error(e)
     else:
-        logger.debug("Create indexes")
+        if id_fieldname is None:
+            logger.debug("No id_fieldname matching the path %s. Using positional comparaison for this list ...", no_idx_path)
+            current_diffs = _get_list_diff_by_position(p_llist, p_rlist, p_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details)
+        else:
+            logger.debug("Create indexes")
 
-        # Stores indexes of objects that are not in the right list
-        left_not_in_right = [x for x in range(len(p_llist))]
+            # Stores indexes of objects that are not in the right list
+            left_not_in_right = [x for x in range(len(p_llist))]
 
-        # Stores indexes of objects that are not in the left list
-        right_not_in_left = [x for x in range(len(p_rlist))]
+            # Stores indexes of objects that are not in the left list
+            right_not_in_left = [x for x in range(len(p_rlist))]
 
-        # Loop over left and right lists and :
-        #   - compares objects that owns the same value for the id_fieldname
-        #   - removes indexes of compared object from the left_not_in_right and right_not_in_left lists
-        #
-        # Not so pythonic ... but to much treatments to use a comprehensive list
-        logger.debug("Loop on lists ...")
+            # Loop over left and right lists and :
+            #   - compares objects that owns the same value for the id_fieldname
+            #   - removes indexes of compared object from the left_not_in_right and right_not_in_left lists
+            #
+            # Not so pythonic ... but to much treatments to use a comprehensive list
+            logger.debug("Loop on lists ...")
 
-        for left_index, left_item in enumerate(p_llist, start=0):
-            for right_index, right_item in enumerate(p_rlist, start=0):
-                if left_item.get(id_fieldname, None) == right_item.get(id_fieldname, None):
-                    logger.debug("Compare left and right because %s == %s", left_item.get(id_fieldname, None), right_item.get(id_fieldname, None))
+            for left_index, left_item in enumerate(p_llist, start=0):
+                for right_index, right_item in enumerate(p_rlist, start=0):
+                    if left_item.get(id_fieldname, None) == right_item.get(id_fieldname, None):
+                        logger.debug("Compare left and right because %s == %s", left_item.get(id_fieldname, None), right_item.get(id_fieldname, None))
 
-                    # Add a move diff if the item has moved
-                    if left_index != right_index:
-                        diff = {'path_to_object': p_path, 'kind': 'M', 'filter': no_idx_path}
-                        if p_complex_details:
-                            diff['lhs_idx'] = left_index
-                            diff['rhs_idx'] = right_index
-                        current_diffs.append(diff)
+                        # Add a move diff if the item has moved
+                        if left_index != right_index:
+                            diff = {'path_to_object': p_path, 'kind': 'M', 'filter': no_idx_path}
+                            if p_complex_details:
+                                diff['lhs_idx'] = left_index
+                                diff['rhs_idx'] = right_index
+                            current_diffs.append(diff)
 
-                    # We keep a trace of the list idx in the path
-                    # Append the index of the element to the path
-                    new_path = _add_field_to_path(p_path, "[{0}]".format(str(left_index)))
-                    current_diffs.extend(get_diff(left_item, right_item, new_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details))
+                        # We keep a trace of the list idx in the path
+                        # Append the index of the element to the path
+                        new_path = _add_field_to_path(p_path, "[{0}]".format(str(left_index)))
+                        logger.debug(current_diffs)
 
-                    # left_not_in_right and right_not_in_left store index
-                    left_not_in_right.remove(left_index)
-                    right_not_in_left.remove(right_index)
-                else:
-                    # Not "comparable" : each ones stay in the left_not_in_right and right_not_in_left lists for "D" and "N" diffs generation
-                    logger.debug("Can't compare left and right : %s != %s", left_item.get(id_fieldname, None), right_item.get(id_fieldname, None))
+                        current_diffs.extend(get_diff(left_item, right_item, new_path, p_mapping, p_ignored_fields, p_simple_details, p_complex_details))
 
-        # Deleted items
-        for i in left_not_in_right:
-            diff = {'path_to_object': p_path, 'kind': 'D', 'filter': no_idx_path}
-            if p_complex_details:
-                diff['lhs_idx'] = i
-                diff['lhs'] = p_llist[i]
-            current_diffs.append(diff)
+                        logger.debug(current_diffs)
 
-        # New items
-        for i in right_not_in_left:
-            diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path, 'rhs_idx': i, 'rhs': p_rlist[i]}
-            if p_complex_details:
-                diff['rhs_idx'] = i
-                diff['rhs'] = p_rlist[i]
-            current_diffs.append(diff)
+                        # left_not_in_right and right_not_in_left store index
+                        left_not_in_right.remove(left_index)
+                        right_not_in_left.remove(right_index)
+                    else:
+                        # Not "comparable" : each ones stay in the left_not_in_right and right_not_in_left lists for "D" and "N" diffs generation
+                        logger.debug("Can't compare left and right : %s != %s", left_item.get(id_fieldname, None), right_item.get(id_fieldname, None))
+
+            # Deleted items
+            for i in left_not_in_right:
+                diff = {'path_to_object': p_path, 'kind': 'D', 'filter': no_idx_path}
+                if p_complex_details:
+                    diff['lhs_idx'] = i
+                    diff['lhs'] = p_llist[i]
+                current_diffs.append(diff)
+
+            # New items
+            for i in right_not_in_left:
+                diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path, 'rhs_idx': i, 'rhs': p_rlist[i]}
+                if p_complex_details:
+                    diff['rhs_idx'] = i
+                    diff['rhs'] = p_rlist[i]
+                current_diffs.append(diff)
 
     return current_diffs
 
 
-def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping={}, p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
+def _get_list_diff_by_position(p_llist, p_rlist, p_path="", p_mapping=[], p_ignored_fields=[], p_simple_details=True, p_complex_details=False):
     """
         Compare two lists by position only, no matter they would have a matching id
 
         p_llist             The Left list to compare
         p_rlist             The right list to compare
         p_path              Path associated to the difference (useful for nested objects comparison)
-        p_mapping           A mapping dict that associates a json path to a fiel containing the object id
+        p_mapping           A mapping list of dict that associates a json path to a fiel containing the object id {'path':'path.to.object','id':'fieldname'}
         p_ignored_fields    List of path that will not be compared
         p_simple_details    If true, retrieves the values of "simple types differences" (int, float, string)
                             It will give the value for each version (old or new) of a field that is of simple type (int, string)
@@ -394,6 +404,20 @@ def _get_path_without_indexes(p_path):
     # Replace expressions starting with a dot and between brackets
     no_idx_path = ""
     if p_path:
-        no_idx_path = re.sub(r"\.\[[0-9]+\]", "", p_path)
+        no_idx_path = re.sub(r"\[[0-9]+\]\.", "", p_path)
 
     return no_idx_path
+
+
+def _get_id_from_mapping(p_mapping, p_path):
+    """
+        Return the field name associated to a path in the mapping list or None if no field has been set
+        to this path
+
+        p_mapping   A mapping list as [{'path':'path.to.id', 'id':'thefieldname'},{'path':'an.other.path.to.id.anewfieldname','id':'anotherfieldname'}]
+        p_path      A path to a nested objetc : 'path.to.a.nested.object'
+    """
+
+    # Search a matching path
+    id_fieldname = next((item['id'] for item in p_mapping if item['path'] == p_path), None)
+    return id_fieldname

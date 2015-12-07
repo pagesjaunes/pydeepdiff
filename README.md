@@ -108,21 +108,25 @@ In the following example, we explicitly use the 'field_1' to identify an object 
     list_a = [{'field_1': 'id1', 'field_2': 'vala1'}, {'field_1': 'id2', 'field_2': 'vala2'}]
     list_b = [{'field_1': 'id3', 'field_2': 'valb1'}, {'field_1': 'id1', 'field_2': 'valb2'}]
 
-    mapping = {'root': 'field_1'}
+    mapping = [{'path': '', 'id': 'field_1'}]
 
     diff = _get_list_dict_diff(list_a, list_b, 'root', mapping, p_complex_details=True)
 ```
 
-Note that you will have to use the same string to represent the root object in the path and in the mapping dictionnary (here we use 'root').
+The mapping is represented by a list of object. Each object has a :
+* a "path" field that contains the json path to the object
+* an "id" field that contains the name of the field representing the id of the object (pointed by "path")
+
+Note that a path to the root object is the empty string
 
 The result is the following list of differences :
 
 ```
     [
-        {'path_to_object': 'root', 'filter': 'root', 'rhs_idx': 1, 'lhs_idx': 0, 'kind': 'M'},
-        {'rhs': 'valb2', 'lhs': 'vala1', 'kind': 'E', 'path_to_object': 'root.[0].field_2', 'filter': 'root.field_2'},
-        {'lhs_idx': 1, 'kind': 'D', 'lhs': {'field_2': 'vala2', 'field_1': 'id2'}, 'path_to_object': 'root', 'filter': 'root'},
-        {'rhs_idx': 0, 'kind': 'N', 'rhs': {'field_2': 'valb1', 'field_1': 'id3'}, 'path_to_object': 'root', 'filter': 'root'}
+        {'path_to_object': '', 'filter': '', 'rhs_idx': 1, 'lhs_idx': 0, 'kind': 'M'},
+        {'rhs': 'valb2', 'lhs': 'vala1', 'kind': 'E', 'path_to_object': '[0].field_2', 'filter': 'field_2'},
+        {'lhs_idx': 1, 'kind': 'D', 'lhs': {'field_2': 'vala2', 'field_1': 'id2'}, 'path_to_object': '', 'filter': ''},
+        {'rhs_idx': 0, 'kind': 'N', 'rhs': {'field_2': 'valb1', 'field_1': 'id3'}, 'path_to_object': '', 'filter': ''}
     ]
 ```
 

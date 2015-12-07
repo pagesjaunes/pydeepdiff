@@ -132,7 +132,7 @@ def test_empty_diff():
         ]
     }
 
-    mapping = {}
+    mapping = []
 
     diff.extend(get_diff(obj_a, obj_b, [], mapping, p_complex_details=True))
 
@@ -268,14 +268,14 @@ def test_simplevalue_diff():
         ]
     }
 
-    mapping = {
-        'root': 'id',
-        'root.blocs_reponses': 'identifiant_de_bloc',
-        'root.blocs_reponses.activites_affichage_immediat': 'identifiant'
-    }
+    mapping = [
+        {'path': '', 'id': 'id'},
+        {'path': 'blocs_reponses', 'id': 'identifiant_de_bloc'},
+        {'path': 'blocs_reponses.activites_affichage_immediat', 'id': 'identifiant'}
+    ]
 
-    diff.extend(get_diff(obj_a, obj_b, "root", mapping, p_complex_details=True))
+    diff.extend(get_diff(obj_a, obj_b, "", mapping, p_complex_details=True))
 
-    expected_diff = [{'kind': 'E', 'lhs': 1, 'path_to_object': 'root.blocs_reponses.[0].activites_affichage_immediat.[0].ordre',  'filter': 'root.blocs_reponses.activites_affichage_immediat.ordre', 'rhs': 2}]
+    expected_diff = [{'kind': 'E', 'lhs': 1, 'path_to_object': 'blocs_reponses.[0].activites_affichage_immediat.[0].ordre',  'filter': 'blocs_reponses.activites_affichage_immediat.ordre', 'rhs': 2}]
 
     assert diff == expected_diff
