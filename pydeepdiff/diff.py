@@ -118,20 +118,22 @@ def _get_dictionary_diff(p_ldic, p_rdic, p_path="", p_mapping=[], p_ignored_fiel
         # As the diff is on "key" field, we add it to the path
         current_path = _add_field_to_path(p_path, key)
         no_idx_path = _get_path_without_indexes(current_path)
-        diff = {'path_to_object': current_path, 'kind': 'N', 'filter': no_idx_path}
-        if p_complex_details:
-            diff['rhs'] = p_ldic[key]
-        current_diffs.append(diff)
+        if no_idx_path not in p_ignored_fields:
+            diff = {'path_to_object': current_path, 'kind': 'N', 'filter': no_idx_path}
+            if p_complex_details:
+                diff['rhs'] = p_ldic[key]
+            current_diffs.append(diff)
 
     # Deletions
     for key in (p_rdic.keys() - intersect):
         # As the diff is on "key" field, we add it to the path
         current_path = _add_field_to_path(p_path, key)
         no_idx_path = _get_path_without_indexes(current_path)
-        diff = {'path_to_object': current_path, 'kind': 'D', 'filter': no_idx_path}
-        if p_complex_details:
-            diff['lhs'] = p_rdic[key]
-        current_diffs.append(diff)
+        if no_idx_path not in p_ignored_fields:
+            diff = {'path_to_object': current_path, 'kind': 'D', 'filter': no_idx_path}
+            if p_complex_details:
+                diff['lhs'] = p_rdic[key]
+            current_diffs.append(diff)
 
     # Changes
     for key in intersect:
