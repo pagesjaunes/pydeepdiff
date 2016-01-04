@@ -7,129 +7,136 @@ from pydeepdiff.diff import get_diff
 
 def test_empty_diff():
     a = {
-        'blocs_reponses': [{
-            'activites_affichage_immediat': [{
-                'machine_learning_source': 'rr',
-                'ordre': 1,
-                'rubriques': [{
-                    'code_an9': '54053000',
-                    'libelle_rubrique': 'restaurants',
-                    'code_an8': '693780'
-                }, {
-                    'code_an9': '00000706',
-                    'libelle_rubrique': 'restaurants asiatiques',
-                    'code_an8': '000706'
-                }],
-                'type_bloc_activite': 'IMMEDIAT',
-                'identifications_bloc_reponse_activite': [{
-                    'origine_bloc_reponse': 'MANUEL',
-                    'identifiant_bloc_reponse': '130749'
-                }],
-                'libelle': 'RESTAURANTS THAÏLANDAIS',
-                'correction': False,
-                'identifiant': 'ac1_2',
-                'machine_learning_etat': 'valide',
-                'forme_canonique': 'restaurant thaïlandais',
-                'expressions': [{
-                    'rubriques': [{
-                        'code_an9': '54053000',
-                        'libelle_rubrique': '',
-                        'code_an8': '693780'
+            "api_response": {
+                "status_code": 200
+            },
+            "ambiguite": True,
+            "creation_date": "2015-12-15T10:31:41.074353+00:00",
+            "blocs_reponses": [{
+                "type_interpretation": "QUOI",
+                "activites_affichage_immediat": [{
+                    "forme_canonique": "paysagiste",
+                    "machine_learning_source": "rr",
+                    "suggestion_editoriale": False,
+                    "type_bloc_activite": "IMMEDIAT",
+                    "rubriques": [{
+                        "code_an8": "850008",
+                        "code_an9": "00850008",
+                        "libelle_rubrique": "paysagistes d'intérieur"
                     }, {
-                        'code_an9': '00000706',
-                        'libelle_rubrique': '',
-                        'code_an8': '000706'
+                        "code_an8": "850009",
+                        "code_an9": "00850009",
+                        "libelle_rubrique": "paysagistes conseils"
+                    }, {
+                        "principale": True,
+                        "code_an8": "594420",
+                        "code_an9": "30055800",
+                        "libelle_rubrique": "paysagistes"
+                    }, {
+                        "code_an8": "447010",
+                        "code_an9": "30455800",
+                        "libelle_rubrique": "aménagement, entretien de jardins, de parcs"
                     }],
-                    'rubriques_fines': [{
-                        'code_an9': '00000796',
-                        'libelle_rubrique': '',
-                        'code_an8': '000796'
+                    "machine_learning_etat": "valide",
+                    "expressions": [{
+                        "formes_brutes": ["paysagiste"],
+                        "chaine_saisie": "paysagiste",
+                        "rubriques_fines": [],
+                        "type_expression": "ACTIVITE",
+                        "formes_normales": ["XXX"],
+                        "type_crc": "",
+                        "libelle": "paysagiste",
+                        "code": "Objet_paysagiste_Principale"
                     }],
-                    'formes_brutes': ['restaurant', 'thaïlandais'],
-                    'type_crc': 'C',
-                    'chaine_saisie': 'restaurant thaïlandais',
-                    'type_expression': 'RESTRICTION_FAIBLE',
-                    'libelle': 'thaïlandaise',
-                    'code': 'ObjetCrc_restaurant thaïlandais_5825-693780-50693780-000706-789300-789350-680700_Principale',
-                    'formes_normales': ['RESTAURANT :: THAILANDAIS']
+                    "correction": False,
+                    "identifications_bloc_reponse_activite": [{
+                        "origine_bloc_reponse": "MANUEL",
+                        "identifiant_bloc_reponse": "106949"
+                    }],
+                    "ordre": 1,
+                    "scoring_qui_quoi": "FORT",
+                    "libelle": "PAYSAGISTES, AMENAGEMENT DE PARCS ET JARDINS",
+                    "identifiant": "ac1"
                 }],
-                'suggestion_editoriale': False,
-                'scoring_qui_quoi': 'FORT'
+                "identifiant_de_bloc": "ac1"
             }],
-            'type_interpretation': 'QUOI',
-            'identifiant_de_bloc': 'ac1'
-        }],
-        'id': 'restaurant thaïlandais',
-        'ambiguite': True,
-        'creation_date': '2015-12-10T15:04:08.046092+00:00',
-        'user': 'fabio',
-        'status': 'OK',
-        'mots_signifiants': ['restaurant', 'thaïlandais']
-    }
-    
+            "mots_signifiants": ["paysagiste"],
+            "id": "paysagiste",
+            "requete": {
+                "libelle": "paysagiste",
+                "tx_fragile": "0.039009564",
+                "frequence": "29637.0"
+            }
+        }
+
     b = {
-        'auto_state': {
-            'user': None,
-            'comments': [],
-            'status': None
-        },
-        'id': 'restaurant thaïlandais',
-        'ambiguite': True,
-        'creation_date': '2015-12-10T15:04:28.028229+00:00',
-        'blocs_reponses': [{
-            'activites_affichage_immediat': [{
-                'machine_learning_source': 'rr',
-                'ordre': 1,
-                'rubriques': [{
-                    'code_an9': '54053000',
-                    'libelle_rubrique': 'restaurants',
-                    'code_an8': '693780'
-                }, {
-                    'code_an9': '00000706',
-                    'libelle_rubrique': 'restaurants asiatiques',
-                    'code_an8': '000706'
-                }],
-                'type_bloc_activite': 'IMMEDIAT',
-                'identifications_bloc_reponse_activite': [{
-                    'origine_bloc_reponse': 'MANUEL',
-                    'identifiant_bloc_reponse': '130749'
-                }],
-                'libelle': 'RESTAURANTS THAÏLANDAIS',
-                'correction': False,
-                'identifiant': 'ac1_2',
-                'machine_learning_etat': 'valide',
-                'forme_canonique': 'restaurant thaïlandais',
-                'expressions': [{
-                    'formes_normales': ['RESTAURANT :: THAILANDAIS'],
-                    'rubriques': [{
-                        'code_an9': '54053000',
-                        'libelle_rubrique': '',
-                        'code_an8': '693780'
+            "auto_state": {
+                "user": None,
+                "comments": [],
+                "status": None
+            },
+            "api_response": {
+                "status_code": 200
+            },
+            "ambiguite": True,
+            "creation_date": "2015-12-15T10:33:12.172772+00:00",
+            "blocs_reponses": [{
+                "identifiant_de_bloc": "ac1",
+                "activites_affichage_immediat": [{
+                    "forme_canonique": "paysagiste",
+                    "suggestion_editoriale": False,
+                    "machine_learning_source": "rr",
+                    "rubriques": [{
+                        "code_an8": "850008",
+                        "code_an9": "00850008",
+                        "libelle_rubrique": "paysagistes d'intérieur"
                     }, {
-                        'code_an9': '00000706',
-                        'libelle_rubrique': '',
-                        'code_an8': '000706'
+                        "code_an8": "850009",
+                        "code_an9": "00850009",
+                        "libelle_rubrique": "paysagistes conseils"
+                    }, {
+                        "principale": True,
+                        "code_an8": "594420",
+                        "code_an9": "30055800",
+                        "libelle_rubrique": "paysagistes"
+                    }, {
+                        "code_an8": "447010",
+                        "code_an9": "30455800",
+                        "libelle_rubrique": "aménagement, entretien de jardins, de parcs"
                     }],
-                    'rubriques_fines': [{
-                        'code_an9': '00000796',
-                        'libelle_rubrique': '',
-                        'code_an8': '000796'
+                    "identifications_bloc_reponse_activite": [{
+                        "origine_bloc_reponse": "MANUEL",
+                        "identifiant_bloc_reponse": "106949"
                     }],
-                    'formes_brutes': ['restaurant', 'thaïlandais'],
-                    'type_crc': 'C',
-                    'type_expression': 'RESTRICTION_FAIBLE',
-                    'libelle': 'thaïlandaise',
-                    'code': 'ObjetCrc_restaurant thaïlandais_5825-693780-50693780-000706-789300-789350-680700_Principale',
-                    'chaine_saisie': 'restaurant thaïlandais'
+                    "expressions": [{
+                        "formes_normales": ["XXX"],
+                        "formes_brutes": ["paysagiste"],
+                        "chaine_saisie": "paysagiste",
+                        "rubriques_fines": [],
+                        "type_expression": "ACTIVITE",
+                        "type_crc": "",
+                        "libelle": "paysagiste",
+                        "code": "Objet_paysagiste_Principale"
+                    }],
+                    "correction": False,
+                    "machine_learning_etat": "valide",
+                    "ordre": 1,
+                    "scoring_qui_quoi": "FORT",
+                    "libelle": "PAYSAGISTES, AMENAGEMENT DE PARCS ET JARDINS",
+                    "type_bloc_activite": "IMMEDIAT",
+                    "identifiant": "ac1"
                 }],
-                'suggestion_editoriale': False,
-                'scoring_qui_quoi': 'FORT'
+                "type_interpretation": "QUOI"
             }],
-            'type_interpretation': 'QUOI',
-            'identifiant_de_bloc': 'ac1'
-        }],
-        'mots_signifiants': ['restaurant', 'thaïlandais']
-    }
+            "mots_signifiants": ["paysagiste"],
+            "id": "paysagiste",
+            "requete": {
+                "libelle": "paysagiste",
+                "tx_fragile": "0.039009564",
+                "frequence": "29637.0"
+            }
+        }
+
     mapping = [{'path': '', 'id': 'id'}, {'path': 'blocs_reponses', 'id': 'identifiant_de_bloc'}, {'path': 'blocs_reponses.activites_affichage_immediat', 'id': 'identifiant'}]
     ignored_field = ['creation_date', 'auto_state', 'user', 'status', 'comments']
     diff = get_diff(a, b, [], mapping, ignored_field)
