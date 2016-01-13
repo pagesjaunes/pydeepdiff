@@ -306,8 +306,11 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping=[], p_ignored_fie
                         logger.debug(current_diffs)
 
                         # left_not_in_right and right_not_in_left store index
-                        left_not_in_right.remove(left_index)
-                        right_not_in_left.remove(right_index)
+                        try:
+                            left_not_in_right.remove(left_index)
+                            right_not_in_left.remove(right_index)
+                        except ValueError as e:
+                            logger.error("Problem : it seems that a uniq item is present twice !!")
                     else:
                         # Not "comparable" : each ones stay in the left_not_in_right and right_not_in_left lists for "D" and "N" diffs generation
                         logger.debug("Can't compare left and right : %s != %s", left_item.get(id_fieldname, None), right_item.get(id_fieldname, None))
