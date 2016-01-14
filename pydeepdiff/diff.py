@@ -325,7 +325,7 @@ def _get_list_dict_diff(p_llist, p_rlist, p_path="", p_mapping=[], p_ignored_fie
 
             # New items
             for i in right_not_in_left:
-                diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path, 'rhs_idx': i, 'rhs': p_rlist[i]}
+                diff = {'path_to_object': p_path, 'kind': 'N', 'filter': no_idx_path}
                 if p_complex_details:
                     diff['rhs_idx'] = i
                     diff['rhs'] = p_rlist[i]
